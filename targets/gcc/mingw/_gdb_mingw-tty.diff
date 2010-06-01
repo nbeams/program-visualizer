@@ -1,0 +1,57 @@
+This patch makes the --tty option work under MinGW.
+It has already been merged upstream.
+
+===================================================================
+RCS file: /cvs/src/src/gdb/windows-nat.c,v
+retrieving revision 1.179
+diff -U2 -r1.179 windows-nat.c
+--- windows-nat.c	6 Feb 2009 22:21:26 -0000	1.179
++++ windows-nat.c	13 Feb 2009 15:39:41 -0000
+@@ -1811,6 +1828,10 @@
+   char shell[MAX_PATH + 1]; /* Path to shell */
+   const char *sh;
++#ifdef __CYGWIN__
+   int tty;
+   int ostdin, ostdout, ostderr;
++#else
++  HANDLE tty;
++#endif
+   const char *inferior_io_terminal = get_inferior_io_terminal ();
+ 
+@@ -1882,4 +1903,28 @@
+ 	}
+     }
++#else
++  if (!inferior_io_terminal)
++    tty = INVALID_HANDLE_VALUE;
++  else
++    {
++      SECURITY_ATTRIBUTES sa;
++      sa.nLength = sizeof(sa);
++      sa.lpSecurityDescriptor = 0;
++      sa.bInheritHandle = TRUE;
++      tty = CreateFileA (inferior_io_terminal, GENERIC_READ | GENERIC_WRITE,
++			 0, &sa, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
++      if (tty == INVALID_HANDLE_VALUE)
++	{
++	  printf_unfiltered ("Warning: Failed to open TTY %s, error %#x\n",
++			     inferior_io_terminal, (unsigned) GetLastError ());
++	}
++      else
++	{
++	  si.hStdInput = tty;
++	  si.hStdOutput = tty;
++	  si.hStdError = tty;
++	  si.dwFlags |= STARTF_USESTDHANDLES;
++	}
++    }
+ #endif
+ 
+@@ -1907,4 +1952,7 @@
+       close (ostderr);
+     }
++#else
++  if (tty != INVALID_HANDLE_VALUE)
++    CloseHandle (tty);
+ #endif
+ 

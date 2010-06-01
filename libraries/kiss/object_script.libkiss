@@ -1,0 +1,13 @@
+CREATE libkiss.a
+ADDMOD build\obj\graphics_interface.o
+ADDMOD build\obj\kiss.o
+ADDMOD build\obj\kiss_graphics.o
+ADDMOD build\obj\kiss_graphics_draw.o
+ADDMOD build\obj\thread_interface.o
+ADDMOD build\obj\timing_interface.o
+ADDMOD build\obj\kiss_serial_buffer.o
+ADDMOD build\obj\serial_interface.o
+ADDMOD build\obj\kiss_util.o
+ADDMOD build\obj\kiss_input.o
+ADDMOD build\obj\kiss_serial_windows.o
+SAVE

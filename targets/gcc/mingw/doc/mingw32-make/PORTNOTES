@@ -1,0 +1,14 @@
+  GNU make port to mingw32
+  Version: 3.80.0
+  Production Release-3
+
+1) Manually renamed make.exe to mingw32-make.exe.
+2) Added autoconfiscation for w32/ to build an uninstalled libw32.a.
+3) Modified configury to add --enable-case-insensitive-file-system.
+4) This version is compiled with case insensitivity enabled.
+5) Modified doc/make.text to change all ifinfo to ifnottex to allow use of
+   makeinfo --html.
+6) Work around a bug in the mingw-runtime.
+
+make/configure --prefix=/mingw --enable-case-insensitive-file-system &&
+   make CFLAGS='-O3 -s -mms-bitfields -mcpu=pentiumpro'

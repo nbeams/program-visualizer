@@ -1,0 +1,32 @@
+This patch is a workaround for gdb freezing when attaching to a suspended
+process. It will not be merged upstream.
+
+Index: windows-nat.c
+===================================================================
+RCS file: /cvs/src/src/gdb/windows-nat.c,v
+retrieving revision 1.179
+diff -U2 -r1.179 windows-nat.c
+--- windows-nat.c	6 Feb 2009 22:21:26 -0000	1.179
++++ windows-nat.c	13 Feb 2009 15:39:41 -0000
+@@ -1331,4 +1331,21 @@
+ 	break;
+ 
++      /* Resume main thread if we are attaching to a suspended
++	 process.
++	 Note that we are not trying to handle multi-threaded
++	 situations, as these are likely to be too complex anyway.
++	 This is primarily meant to cover the case where someone
++	 creates a process in suspended state and hands it over
++	 to gdb (this is an abstraction - you cannot actually do
++	 that due to Windows bugs. You need to start debugging the
++	 process yourself, and once it has started up, you suspend
++	 it and detach from it). */
++      if (SuspendThread (current_event.u.CreateProcessInfo.hThread) == 2)
++	{
++	  printf_unfiltered ("gdb: thawing initially frozen thread.\n");
++	  ResumeThread (current_event.u.CreateProcessInfo.hThread);
++	}
++      CHECK (ResumeThread (current_event.u.CreateProcessInfo.hThread));
++
+       current_process_handle = current_event.u.CreateProcessInfo.hProcess;
+       if (main_thread_id)

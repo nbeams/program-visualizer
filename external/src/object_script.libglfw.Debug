@@ -1,0 +1,22 @@
+CREATE ..\lib\libglfw.a
+ADDMOD build\obj\enable.o
+ADDMOD build\obj\fullscreen.o
+ADDMOD build\obj\glext.o
+ADDMOD build\obj\image.o
+ADDMOD build\obj\init.o
+ADDMOD build\obj\input.o
+ADDMOD build\obj\joystick.o
+ADDMOD build\obj\stream.o
+ADDMOD build\obj\tga.o
+ADDMOD build\obj\thread.o
+ADDMOD build\obj\time.o
+ADDMOD build\obj\window.o
+ADDMOD build\obj\win32_enable.o
+ADDMOD build\obj\win32_fullscreen.o
+ADDMOD build\obj\win32_glext.o
+ADDMOD build\obj\win32_init.o
+ADDMOD build\obj\win32_joystick.o
+ADDMOD build\obj\win32_thread.o
+ADDMOD build\obj\win32_time.o
+ADDMOD build\obj\win32_window.o
+SAVE
