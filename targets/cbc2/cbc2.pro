@@ -13,6 +13,8 @@ win32:TARGET = $$qtLibraryTarget(libcbc2_plugin)
 CONFIG -= debug debug_and_release
 CONFIG += release
 
+QT += svg
+
 LIBS += -L../../libraries/extraGUI -L../../libraries/program_visualizer -lextraGUI -lprogram_visualizer -lqscintilla2
 
 HEADERS += CBC.h SerialClient.h QSerialPort.h

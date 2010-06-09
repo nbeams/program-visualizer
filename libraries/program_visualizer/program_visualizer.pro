@@ -4,11 +4,13 @@ TARGET =
 DEPENDPATH += src
 INCLUDEPATH += ../../external/include \
     ../../editor/src
+
 CONFIG -= debug \
     debug_and_release
 CONFIG += qt \
     staticlib \
     release
+QT += svg
 win32:INCLUDEPATH += QSci \
     CONFIG \
     -= \
@@ -28,3 +30,5 @@ SOURCES += src/ProgramVisualizer.cpp \
     src/VisualizerGraphicsScene.cpp \
     src/FunctionItem.cpp
 FORMS += ui/ProgramVisualizer.ui
+
+RESOURCES += rc/program_visualizer.qrc
