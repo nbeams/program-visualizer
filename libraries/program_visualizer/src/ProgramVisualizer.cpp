@@ -93,13 +93,13 @@ int ProgramVisualizer::searchForFunctions(QString sourceFileText)
 
     /*define regular expression for finding the main function*/
    // QRegExp mainFunction("int\\s+main\\s*\\(\\s*\\)(\\s*\\r*\\n*)*\\{");
-   QRegExp mainFunction("int\\s+main\\s*\\(\\s*\\)((\\s*\\r*\\n*)*(/\\*[^*/]*\\*/)*(//[^\\n\\r]*\\n)?)*\\{");
+   QRegExp mainFunction("int\\s+main\\s*\\(\\s*\\)((\\s*\\r*\\n*)*(/\\*(.(?!\\*/))*.\\*/)*(//[^\\n\\r]*\\n)?)*\\{");
     /*
      *      Translation of QRegExp because it's really confusing-looking:
      *      int\\s+main\\s* -> "int" plus at least one space, followed by "main" and possible whitespace.
      *      \\(\\s*\\) -> parentheses and possible whitespace in between them.
      *      (\\s*\\r*\\n*)* -> any possible combination of whitespace and line returns.
-     *///   (/\\*[^*/]*\\*/)* -> any number of "slash-star" comments.
+     *///   (/\\*(.(?!\\*/))*.\\*/)* -> any number of "slash-star" comments.
     /*      (//[^\\n\\r]*\\n)?  -> an in-line comment is possible, as long as it is followed by a new line.
      *      \\{ -> open curly brace beginning definition of main function.
      */
@@ -170,7 +170,7 @@ int ProgramVisualizer::searchForFunctions(QString sourceFileText)
             newFunction->setName(currentName);
 
             /*Create RegExp for finding this function's definition*/
-            QRegExp currentDefinition(currentType+"\\s*\\*?\\&?\\s+\\*?\\&?\\s*"+currentName+"\\s*\\([^;{]*\\)[^;]((\\s*\\r*\\n*)*(/\\*[^*/]*\\*/)*(//[^\\n\\r]*\\n)?)*\\{");
+            QRegExp currentDefinition(currentType+"\\s*\\*?\\&?\\s+\\*?\\&?\\s*"+currentName+"\\s*\\([^;{]*\\)[^;]((\\s*\\r*\\n*)*(/\\*(.(?!\\*/))*.\\*/)*(//[^\\n\\r]*\\n)?)*\\{");
             /*Search for this RegExp*/
             defPos = currentDefinition.indexIn(sourceFileText, endPos);
             if(defPos > 0)

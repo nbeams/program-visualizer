@@ -7,9 +7,9 @@
 #include <QGraphicsItem>
 #include <QPainter>
 
-//#include <QGraphicsSimpleTextItem>
-//#include <QtSvg/QGraphicsSvgItem>
-//#include <QtSvg/QSvgRenderer>
+#include <QGraphicsSimpleTextItem>
+#include <QtSvg/QGraphicsSvgItem>
+#include <QtSvg/QSvgRenderer>
 
 #include "BrowserItem.h"
 
@@ -55,16 +55,16 @@ private:
     QString m_functionName;
     QTreeWidget *m_treeWidget;
     QRectF *m_rectF;
-//    QSvgRenderer *m_svgGraphics;
-//    QGraphicsSvgItem *m_background, *m_backgroundLeft, *m_backgroundRight;
-//    QGraphicsSimpleTextItem *m_textitem;
+    QSvgRenderer *m_svgGraphics;
+    QGraphicsSvgItem *m_background, *m_backgroundLeft, *m_backgroundRight;
+    QGraphicsSimpleTextItem *m_textitem;
     QPointF m_leftConnectionPoint;
     QPointF m_rightConnectionPoint;
     int m_type;
     int m_level;
     int m_numberOfChildren;
     bool m_hasParentItem;
-//    bool m_scaled;
+    bool m_scaled;
 
     /*Pure virtual function from QGraphicsItem that must be reimplemented*/
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);

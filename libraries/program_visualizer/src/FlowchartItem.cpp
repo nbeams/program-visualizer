@@ -13,7 +13,7 @@ FlowchartItem::FlowchartItem(QTreeWidget *parentTreeWidget, int type, QString na
 
     m_treeWidget = parentTreeWidget;
     m_rectF = new QRectF();
-/*    m_svgGraphics = new QSvgRenderer(QLatin1String("FlowchartItem.svg"));
+    m_svgGraphics = new QSvgRenderer(QLatin1String("FlowchartItem.svg"));
 
     m_background = new QGraphicsSvgItem(this);
     m_background->setSharedRenderer(m_svgGraphics);
@@ -27,12 +27,12 @@ FlowchartItem::FlowchartItem(QTreeWidget *parentTreeWidget, int type, QString na
     m_backgroundRight->setSharedRenderer(m_svgGraphics);
     m_backgroundRight->setElementId("boxright");
 
-    m_textitem = new QGraphicsSimpleTextItem(this); */
+    m_textitem = new QGraphicsSimpleTextItem(this);
     m_type = type;
     m_nameText = nameText;
     m_hasParentItem = false;
     m_isFunctionCall = false;
- //   m_scaled = false;
+    m_scaled = false;
 
 }
 
@@ -42,7 +42,7 @@ FlowchartItem::FlowchartItem(QTreeWidget *parentTreeWidget, FlowchartItem *paren
     m_parentItem = parentItem;
     m_treeWidget = parentTreeWidget;
     m_rectF = new QRectF();
-  /*  m_svgGraphics = new QSvgRenderer(QLatin1String("FlowchartItem.svg"));
+    m_svgGraphics = new QSvgRenderer(QLatin1String("FlowchartItem.svg"));
 
     m_background = new QGraphicsSvgItem(this);
     m_background->setSharedRenderer(m_svgGraphics);
@@ -56,12 +56,12 @@ FlowchartItem::FlowchartItem(QTreeWidget *parentTreeWidget, FlowchartItem *paren
     m_backgroundRight->setSharedRenderer(m_svgGraphics);
     m_backgroundRight->setElementId("boxright");
 
-    m_textitem = new QGraphicsSimpleTextItem(this); */
+    m_textitem = new QGraphicsSimpleTextItem(this);
     m_type = type;
     m_nameText = nameText;
     m_hasParentItem = true;
     m_isFunctionCall = false;
- //   m_scaled = false;
+    m_scaled = false;
 }
 
 FlowchartItem::~FlowchartItem()
@@ -200,10 +200,10 @@ void FlowchartItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opt
     /*Determine size of rectangle needed based on length of text*/
     QRectF boundingRect;
     boundingRect = painter->boundingRect(*m_rectF, Qt::AlignCenter, m_nameText);
-    m_rectF->setWidth(boundingRect.width() + 5);
-    m_rectF->setHeight(boundingRect.height());
+ //   m_rectF->setWidth(boundingRect.width() + 5);
+ //   m_rectF->setHeight(boundingRect.height());
 
-/*    if(! m_scaled)
+    if(! m_scaled)
     {
     //m_background->scale(1.0/xscale, 1.0);
         //xscale = (boundingRect.width()+5.0)/m_background->boundingRect().width();
@@ -221,7 +221,7 @@ void FlowchartItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opt
     m_background->setPos((m_backgroundLeft->boundingRect().width() ) - boundingRect.width()/50.0 , 0); // we subtract 1 scaled pixel for some odd reason...
 
     m_backgroundLeft->setPos(0, 0);
-    m_backgroundRight->setPos((m_backgroundLeft->boundingRect().width() ) - boundingRect.width()/50.0 + m_background->boundingRect().width() * boundingRect.width()/50.0 - boundingRect.width()/50.0, 0); // we subtract another scaled pixel for some odd reason */
+    m_backgroundRight->setPos((m_backgroundLeft->boundingRect().width() ) - boundingRect.width()/50.0 + m_background->boundingRect().width() * boundingRect.width()/50.0 - boundingRect.width()/50.0, 0); // we subtract another scaled pixel for some odd reason
 
 
 
@@ -232,16 +232,16 @@ void FlowchartItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opt
     m_rightConnectionPoint.setX((m_rectF->topRight().x() + m_rectF->bottomRight().x())/2);
     m_rightConnectionPoint.setY((m_rectF->topRight().y() + m_rectF->bottomRight().y())/2);
 
-    painter->drawRect(*m_rectF);
-    painter->drawText(*m_rectF, m_nameText);
+ //   painter->drawRect(*m_rectF);
+ //   painter->drawText(*m_rectF, m_nameText);
 
- /*   m_textitem->setText(m_nameText);
+    m_textitem->setText(m_nameText);
     m_textitem->setPos(15, 15);
-    m_textitem->setZValue(2); */
+    m_textitem->setZValue(2);
 }
 
 QRectF FlowchartItem::boundingRect() const
 {
-   return *m_rectF;
- //  return m_background->boundingRect();
+ //  return *m_rectF;
+   return m_background->boundingRect();
 }

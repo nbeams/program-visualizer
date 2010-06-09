@@ -67,7 +67,7 @@ int FunctionItem::createFlowchart()
     //Temporary code just to display the items
     for(i = 0; i < m_flowchartList->length(); i++)
     {
-        currentY = currentY + 20;
+        currentY = currentY + 55;
         m_flowchartList->at(i)->setLocation(100*m_flowchartList->at(i)->level(), currentY);
     }
 
@@ -218,12 +218,12 @@ int FunctionItem::searchForKeywords(QString text, FlowchartItem *parentItem)
      *      [^\\n\\r]*\\)  ->  One last instance of a comtination of characters other than newlines and carriage returns
      *           (the change in the foor loop variable), followed by a closed parenthesis.
      */
-    QRegExp doWhileBegin("\\bdo(?!\\w+)(\\s*\\n*)*(/\\*[^*/]*\\*/)*(//[^\\n\\r]*\\n)?");
+    QRegExp doWhileBegin("\\bdo(?!\\w+)(\\s*\\n*)*(/\\*(.(?!\\*/))*.\\*/)*(//[^\\n\\r]*\\n)?");
     /*
      *      Translation of this QRegExp:
      *      \\bdo(?!\\w+) -> finds the word "do" if it is not in the middle of a word.
      *      (\\s*\\n*)*  -> Possible combination of whitespace and/or newlines.
-     */    //(/\\*[^*/]*\\*/)* -> Could have zero or more slash-star comments.
+     */    //(/\\*(.(?!\\*/))*.\\*/)* -> Could have zero or more slash-star comments.
     /*      (//[^\\n\\r]*\\n)? -> Also could have an inline comment.
      */
     QRegExp doWhileName("while\\s*\\(\\s*\\W?\\w+([^\\n\\r]*)?\\s*\\)(?=\\s*;)");
@@ -467,12 +467,12 @@ QString FunctionItem::findItemText(QString text, int *itemPos)
     QRegExp closedBrace("\\}");
 
     /*Define RegExps for finding text associated with visualization items*/
-    QRegExp beginOneLineItem("((\\s*\\r*\\n*)*(/\\*[^*/]*\\*/)*(//[^\\n\\r]*\\n)?)*[^\\n;]*;");
-    QRegExp beginMultiLineItem("((\\s*\\r*\\n*)*(/\\*[^*/]*\\*/)*(//[^\\n\\r]*\\n)?)*\\{");
+    QRegExp beginOneLineItem("((\\s*\\r*\\n*)*(/\\*(.(?!\\*/))*.\\*/)*(//[^\\n\\r]*\\n)?)*[^\\n;]*;");
+    QRegExp beginMultiLineItem("((\\s*\\r*\\n*)*(/\\*(.(?!\\*/))*.\\*/)*(//[^\\n\\r]*\\n)?)*\\{");
     /*
      *      Translation of these QRegExps:
      *      (\\s*\\r*\\n*)* -> Any combination of whitespace, newlines, and carriage returns.
-     *///   (/\\*[^*/]*\\*/)* -> Any number of "slash-star" comments.
+     *///   (/\\*(.(?!\\*/))*.\\*/)* -> Any number of "slash-star" comments.
     /*      (//[^\\n\\r]*\\n)?  -> An in-line comment is possible, as long as it is followed by a new line.
      *      [^\\n;]*;   OR   \\{ -> Either a line of characters other than newlines or semicolons followed by a
      *              a single semicolon (one line of code for one-line loops, ifs, etc.) or and open curly brace for a
@@ -487,6 +487,7 @@ QString FunctionItem::findItemText(QString text, int *itemPos)
     {
         currentPos = *itemPos + beginOneLineItem.matchedLength();
         itemText.append(text.mid(*itemPos, currentPos-*itemPos));
+        *itemPos = currentPos;
     }
 
     else if(multiLinePos == *itemPos) //This item has a block of text, and we must count the curly braces to find all of it
@@ -547,7 +548,7 @@ FlowchartItem* FunctionItem::findCase(QString text, FlowchartItem *parentItem, i
 
     QRegExp explicitCase("case\\s+\\w+\\s*:");
     QRegExp defaultCase("default\\s*:");
-    QRegExp withBraces("((\\s*\\r*\\n*)*(/\\*[^*/]*\\*/)*(//[^\\n\\r]*\\n)?)*\\{");
+    QRegExp withBraces("((\\s*\\r*\\n*)*(/\\*(.(?!\\*/))*.\\*/)*(//[^\\n\\r]*\\n)?)*\\{");
     QRegExp breakFromCase("\\bbreak\\s*;");
 
     casePos = explicitCase.indexIn(text, *itemPos);
@@ -701,6 +702,7 @@ void FunctionItem::handleFunctionCall(QString nameText, FlowchartItem *item, int
                                                              //middle of this line of code and search for more function calls
     else
         *endOfFunctionCall = -1; //this will do nothing back in searchForKeywords
+
 
     item->setItemText(newItemText);
     item->setIsFunctionCall(true);
