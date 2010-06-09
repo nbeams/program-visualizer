@@ -13,9 +13,26 @@ FlowchartItem::FlowchartItem(QTreeWidget *parentTreeWidget, int type, QString na
 
     m_treeWidget = parentTreeWidget;
     m_rectF = new QRectF();
+/*    m_svgGraphics = new QSvgRenderer(QLatin1String("FlowchartItem.svg"));
+
+    m_background = new QGraphicsSvgItem(this);
+    m_background->setSharedRenderer(m_svgGraphics);
+    m_background->setElementId("boxmiddle");
+
+    m_backgroundLeft = new QGraphicsSvgItem(this);
+    m_backgroundLeft->setSharedRenderer(m_svgGraphics);
+    m_backgroundLeft->setElementId("boxleft");
+
+    m_backgroundRight = new QGraphicsSvgItem(this);
+    m_backgroundRight->setSharedRenderer(m_svgGraphics);
+    m_backgroundRight->setElementId("boxright");
+
+    m_textitem = new QGraphicsSimpleTextItem(this); */
     m_type = type;
     m_nameText = nameText;
     m_hasParentItem = false;
+    m_isFunctionCall = false;
+ //   m_scaled = false;
 
 }
 
@@ -25,9 +42,26 @@ FlowchartItem::FlowchartItem(QTreeWidget *parentTreeWidget, FlowchartItem *paren
     m_parentItem = parentItem;
     m_treeWidget = parentTreeWidget;
     m_rectF = new QRectF();
+  /*  m_svgGraphics = new QSvgRenderer(QLatin1String("FlowchartItem.svg"));
+
+    m_background = new QGraphicsSvgItem(this);
+    m_background->setSharedRenderer(m_svgGraphics);
+    m_background->setElementId("boxmiddle");
+
+    m_backgroundLeft = new QGraphicsSvgItem(this);
+    m_backgroundLeft->setSharedRenderer(m_svgGraphics);
+    m_backgroundLeft->setElementId("boxleft");
+
+    m_backgroundRight = new QGraphicsSvgItem(this);
+    m_backgroundRight->setSharedRenderer(m_svgGraphics);
+    m_backgroundRight->setElementId("boxright");
+
+    m_textitem = new QGraphicsSimpleTextItem(this); */
     m_type = type;
     m_nameText = nameText;
     m_hasParentItem = true;
+    m_isFunctionCall = false;
+ //   m_scaled = false;
 }
 
 FlowchartItem::~FlowchartItem()
@@ -52,6 +86,21 @@ QString FlowchartItem::nameText()
 QString FlowchartItem::itemText()
 {
     return m_itemText;
+}
+
+QString FlowchartItem::itemType()
+{
+    return m_itemType;
+}
+
+bool FlowchartItem::isFunctionCall()
+{
+    return m_isFunctionCall;
+}
+
+QString FlowchartItem::functionName()
+{
+    return m_functionName;
 }
 
 QPointF FlowchartItem::leftConnectionPoint()
@@ -97,9 +146,29 @@ void FlowchartItem::createBrowserItem()
         m_browserItem = new BrowserItem(m_treeWidget, m_type, m_nameText);
 }
 
+void FlowchartItem::setNameText(QString name)
+{
+    m_nameText = name;
+}
+
+void FlowchartItem::setItemType(QString text)
+{
+    m_itemType = text;
+}
+
+void FlowchartItem::setIsFunctionCall(bool isFunctionCall)
+{
+    m_isFunctionCall = isFunctionCall;
+}
+
 void FlowchartItem::setItemText(QString text)
 {
     m_itemText = text;
+}
+
+void FlowchartItem::setFunctionName(QString functionName)
+{
+    m_functionName = functionName;
 }
 
 void FlowchartItem::setLocation(float topLeftX, float topLeftY)
@@ -126,11 +195,35 @@ void FlowchartItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 void FlowchartItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
 
+    double xscale;
+
     /*Determine size of rectangle needed based on length of text*/
     QRectF boundingRect;
     boundingRect = painter->boundingRect(*m_rectF, Qt::AlignCenter, m_nameText);
     m_rectF->setWidth(boundingRect.width() + 5);
     m_rectF->setHeight(boundingRect.height());
+
+/*    if(! m_scaled)
+    {
+    //m_background->scale(1.0/xscale, 1.0);
+        //xscale = (boundingRect.width()+5.0)/m_background->boundingRect().width();
+        xscale = (boundingRect.width())/50.0;
+        //m_background->setTransformOriginPoint(-16, 0);
+        m_background->scale(xscale, 1.0);
+        m_scaled = true;
+    }
+
+     // This fixes the spacing of flowchart items... or maybe not
+    //m_rectF->setWidth(m_background->boundingRect().width());
+    //m_rectF->setHeight(m_background->boundingRect().height());
+
+    m_background->setZValue(-1);
+    m_background->setPos((m_backgroundLeft->boundingRect().width() ) - boundingRect.width()/50.0 , 0); // we subtract 1 scaled pixel for some odd reason...
+
+    m_backgroundLeft->setPos(0, 0);
+    m_backgroundRight->setPos((m_backgroundLeft->boundingRect().width() ) - boundingRect.width()/50.0 + m_background->boundingRect().width() * boundingRect.width()/50.0 - boundingRect.width()/50.0, 0); // we subtract another scaled pixel for some odd reason */
+
+
 
      /*Use size and location to create connection points for visualization*/
     m_leftConnectionPoint.setX((m_rectF->topLeft().x() + m_rectF->bottomLeft().x())/2);
@@ -141,9 +234,14 @@ void FlowchartItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opt
 
     painter->drawRect(*m_rectF);
     painter->drawText(*m_rectF, m_nameText);
+
+ /*   m_textitem->setText(m_nameText);
+    m_textitem->setPos(15, 15);
+    m_textitem->setZValue(2); */
 }
 
 QRectF FlowchartItem::boundingRect() const
 {
    return *m_rectF;
+ //  return m_background->boundingRect();
 }

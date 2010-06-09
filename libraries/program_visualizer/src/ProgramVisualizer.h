@@ -43,7 +43,7 @@ private:
     QString m_selectedText;
 
     void reset();
-    void searchForFunctions(QString sourceFileText);
+    int searchForFunctions(QString sourceFileText);
     QString findFunctionDefinition(QString sourceFileText, FunctionItem *item, int defPos);
     void closeEvent (QCloseEvent *event);
 
@@ -51,6 +51,7 @@ private:
     void refresh();
     void setCurrentFlowchartItem();
     void setCurrentFunction(int index);
+    void changeFunction();
 
 };
 
