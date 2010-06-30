@@ -5,16 +5,18 @@
 #include <QTreeWidgetItem>
 #include <QGraphicsView>
 #include <QMessageBox>
+#include <QTextDocument>
+#include <QTextCursor>
 #include <QRectF>
 #include <QList>
 #include <QPointF>
-#include <QLineF>
+#include <QPoint>
 #include <QRegExp>
 
 #include "SourceFile.h"
 #include "BrowserItem.h"
 #include "FunctionItem.h"
-
+#include "UpdateDialog.h"
 #include "VisualizerGraphicsScene.h"
 
 namespace Ui {
@@ -38,9 +40,12 @@ private:
     FunctionItem *m_currentFunction;
     VisualizerGraphicsScene *m_currentScene;
     FlowchartItem *m_currentFlowchartItem;
+    UpdateDialog *m_updateSourceWarning;
     QList<FlowchartItem*> *m_flowchartList;
     QList<FunctionItem*> m_functionList;
-    QString m_selectedText;
+    QTextDocument *m_currentItemText;
+    int m_updateDecision;
+    QList<QPoint> m_offsetList;
 
     void reset();
     int searchForFunctions(QString sourceFileText);
@@ -52,6 +57,20 @@ private:
     void setCurrentFlowchartItem();
     void setCurrentFunction(int index);
     void changeFunction();
+    void jumpToPosition();
+    void setUpdateDecision();
+    void enableUpdate();
+    void updateSourceFile();
+    void checkCursorPosition();
+    void checkHighlighted();
+    void setItemTextFont(QFont font);
+    void setItemTextPointSize(int size);
+    void setBrowserFont();
+
+    /*Test*/
+    void setHighlightedBrowserItem(QTreeWidgetItem *item, int column);
+    void browserItemChanged(QTreeWidgetItem *item, int column);
+    void setOffset(int pos, int removed, int added);
 
 };
 

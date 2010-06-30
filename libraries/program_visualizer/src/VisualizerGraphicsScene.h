@@ -16,7 +16,6 @@ public:
 
 private:
     FlowchartItem *m_selectedFCItem;
-    void mousePressEvent(QGraphicsSceneMouseEvent *event);
 
 };
 

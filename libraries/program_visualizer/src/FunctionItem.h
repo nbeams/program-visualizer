@@ -17,6 +17,7 @@ public:
     ~FunctionItem();
     VisualizerGraphicsScene* graphicsScene();
     QString prototype();
+    int posInSource();
     QString name();
     QString type();
     QString definitionText();
@@ -24,13 +25,14 @@ public:
 
     void addFlowchartItem(FlowchartItem *item);
     void clear();
+    void setPosInSource(int pos);
     void setDefinitionText(QString definition);
     void setName(QString name);
     void setType(QString type);
 
     int createFlowchart();
     int searchForKeywords(QString text, FlowchartItem *parentItem);
-    QString findItemText(QString text, int *itemPos);
+    QString findItemText(QString text, int *itemPos, int *beginItemTextPos, int *endItemTextPos);
     FlowchartItem* findCase(QString text, FlowchartItem *parentItem, int *itemPos, bool *newItemFound);
     void handleFunctionCall(QString nameext, FlowchartItem *item, int *endOfFunctionCall);
     bool findNext(QString text, QRegExp regExp, int *searchPos);
@@ -38,6 +40,7 @@ public:
 
 private:
     VisualizerGraphicsScene *m_graphicsScene;
+    int m_posInSource;
     QString m_prototype;
     QString m_name;
     QString m_type;
