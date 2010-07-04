@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'ProgramVisualizer.h'
 **
-** Created: Tue Jun 1 14:21:32 2010
+** Created: Sun Jul 4 00:26:34 2010
 **      by: The Qt Meta Object Compiler version 61 (Qt 4.5.2)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -23,23 +23,45 @@ static const uint qt_meta_data_ProgramVisualizer[] = {
        2,       // revision
        0,       // classname
        0,    0, // classinfo
-       3,   12, // methods
+      17,   12, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
 
  // slots: signature, parameters, type, tag, flags
       19,   18,   18,   18, 0x08,
-      29,   18,   18,   18, 0x08,
-      61,   55,   18,   18, 0x08,
+      25,   18,   18,   18, 0x08,
+      35,   18,   18,   18, 0x08,
+      67,   61,   18,   18, 0x08,
+      91,   18,   18,   18, 0x08,
+     108,   18,   18,   18, 0x08,
+     125,   18,   18,   18, 0x08,
+     145,   18,   18,   18, 0x08,
+     160,   18,   18,   18, 0x08,
+     179,   18,   18,   18, 0x08,
+     201,   18,   18,   18, 0x08,
+     232,  220,   18,   18, 0x08,
+     280,  220,   18,   18, 0x08,
+     339,  321,   18,   18, 0x08,
+     367,  362,   18,   18, 0x08,
+     395,  390,   18,   18, 0x08,
+     421,   18,   18,   18, 0x08,
 
        0        // eod
 };
 
 static const char qt_meta_stringdata_ProgramVisualizer[] = {
-    "ProgramVisualizer\0\0refresh()\0"
+    "ProgramVisualizer\0\0run()\0refresh()\0"
     "setCurrentFlowchartItem()\0index\0"
-    "setCurrentFunction(int)\0"
+    "setCurrentFunction(int)\0changeFunction()\0"
+    "jumpToPosition()\0setUpdateDecision()\0"
+    "enableUpdate()\0updateSourceFile()\0"
+    "checkCursorPosition()\0checkHighlighted()\0"
+    "item,column\0setHighlightedBrowserItem(QTreeWidgetItem*,int)\0"
+    "browserItemChanged(QTreeWidgetItem*,int)\0"
+    "pos,removed,added\0setOffset(int,int,int)\0"
+    "font\0setItemTextFont(QFont)\0size\0"
+    "setItemTextPointSize(int)\0setBrowserFont()\0"
 };
 
 const QMetaObject ProgramVisualizer::staticMetaObject = {
@@ -67,12 +89,26 @@ int ProgramVisualizer::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
         switch (_id) {
-        case 0: refresh(); break;
-        case 1: setCurrentFlowchartItem(); break;
-        case 2: setCurrentFunction((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 0: run(); break;
+        case 1: refresh(); break;
+        case 2: setCurrentFlowchartItem(); break;
+        case 3: setCurrentFunction((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 4: changeFunction(); break;
+        case 5: jumpToPosition(); break;
+        case 6: setUpdateDecision(); break;
+        case 7: enableUpdate(); break;
+        case 8: updateSourceFile(); break;
+        case 9: checkCursorPosition(); break;
+        case 10: checkHighlighted(); break;
+        case 11: setHighlightedBrowserItem((*reinterpret_cast< QTreeWidgetItem*(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2]))); break;
+        case 12: browserItemChanged((*reinterpret_cast< QTreeWidgetItem*(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2]))); break;
+        case 13: setOffset((*reinterpret_cast< int(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2])),(*reinterpret_cast< int(*)>(_a[3]))); break;
+        case 14: setItemTextFont((*reinterpret_cast< QFont(*)>(_a[1]))); break;
+        case 15: setItemTextPointSize((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 16: setBrowserFont(); break;
         default: ;
         }
-        _id -= 3;
+        _id -= 17;
     }
     return _id;
 }

@@ -3,9 +3,12 @@
 #include <Qsci/qsciscintilla.h>
 
 ProgramVisualizer::ProgramVisualizer() : m_ui(new Ui::ProgramVisualizer), m_currentSourceFile(0),
-        m_currentFunction(0), m_currentFlowchartItem()
+        m_currentFunction(0), m_currentFlowchartItem(), m_action(QIcon(":/shortcuts/visualizer/eye.png"),"Visualize Program", this)
 
 {
+    
+   Q_INIT_RESOURCE(program_visualizer);
+   
    /*Set up Ui and GraphicsScene (to which program map objects will be added)*/
     m_ui->setupUi(this);
     m_ui->changeFunction->setVisible(false);
@@ -19,6 +22,7 @@ ProgramVisualizer::ProgramVisualizer() : m_ui(new Ui::ProgramVisualizer), m_curr
     m_updateSourceWarning = new UpdateDialog();
 
     /*Connections*/
+    connect(&m_action, SIGNAL(triggered()), this, SLOT(run()));
     connect(m_ui->Refresh, SIGNAL(clicked()), this, SLOT(refresh()));
     connect(m_ui->expandAll, SIGNAL(clicked()), m_ui->treeWidget, SLOT(expandAll()));
     connect(m_ui->treeWidget, SIGNAL(itemSelectionChanged()), this, SLOT(setCurrentFlowchartItem()));
@@ -27,17 +31,16 @@ ProgramVisualizer::ProgramVisualizer() : m_ui(new Ui::ProgramVisualizer), m_curr
     connect(m_ui->jumpTo, SIGNAL(clicked()), this, SLOT(jumpToPosition()));
     connect(m_ui->textEdit, SIGNAL(textChanged()), this, SLOT(enableUpdate()));
     connect(m_ui->updateSourceFile, SIGNAL(clicked()), this, SLOT(updateSourceFile()));
-    connect(m_ui->textEdit, SIGNAL(cursorPositionChanged()), this, SLOT(checkCursorPosition()));
+   // connect(m_ui->textEdit, SIGNAL(cursorPositionChanged()), this, SLOT(checkCursorPosition()));
     connect(m_ui->fontComboBox, SIGNAL(currentFontChanged(QFont)), this, SLOT(setItemTextFont(QFont)));
     connect(m_ui->fontSize, SIGNAL(valueChanged(int)), this, SLOT(setItemTextPointSize(int)));
     connect(m_ui->applyFont, SIGNAL(clicked()), this, SLOT(setBrowserFont()));
-
-    /*Testing*/
     connect(m_ui->treeWidget, SIGNAL(itemEntered(QTreeWidgetItem*, int)), this, SLOT(setHighlightedBrowserItem(QTreeWidgetItem*, int)));
 }
 
 ProgramVisualizer::~ProgramVisualizer()
 {
+    Q_CLEANUP_RESOURCE(program_visualizer);
     delete m_ui;
 }
 
@@ -81,7 +84,9 @@ void ProgramVisualizer::run()
                 break;
             case 3:
                 QMessageBox::warning(this, "Visualization Error", "An error occurred when searching the functions in the program.\nPlease check for unmatched braces in your function definitions.\n", QMessageBox::Ok, QMessageBox::NoButton, QMessageBox::NoButton);
-
+                break;
+            case 4:
+                QMessageBox::warning(this, "Visualization Error", "An error occurred when searching the functions in the program.\nPlease check for unmatched parentheses in your function definitions.\n", QMessageBox::Ok, QMessageBox::NoButton, QMessageBox::NoButton);
         }
     }
 }
@@ -89,9 +94,9 @@ void ProgramVisualizer::run()
 void ProgramVisualizer::refresh()
 {
     reset();
-    if(m_updateDecision == 2)
-        return;
-    else
+   // if(m_updateDecision == 2)
+   //     return;
+   // else
         run();
 }
 
@@ -109,7 +114,9 @@ void ProgramVisualizer::reset()
 
     disconnect(m_ui->treeWidget, SIGNAL(itemChanged(QTreeWidgetItem*, int)), this, SLOT(browserItemChanged(QTreeWidgetItem*, int)));
     disconnect(m_currentItemText, SIGNAL(contentsChange(int, int, int)), this, SLOT(setOffset(int, int, int)));
+    disconnect(m_ui->textEdit, SIGNAL(cursorPositionChanged()), this, SLOT(checkCursorPosition()));
     m_offsetList.clear();
+
     int i; int numFunctions;
     
     /*Clear all lists, the graphics scene, the browser window, and the text browser*/
@@ -182,6 +189,8 @@ int ProgramVisualizer::searchForFunctions(QString sourceFileText)
             errorCode = newFunction->createFlowchart(); //create visualization for the main function
             if(errorCode == 3)
                 return 3; //error code for problem counting braces within a specific function
+            else if(errorCode == 4)
+                return 4; //error code for problem counting parentheses within a specific function
             else
                 m_functionList.append(newFunction); //add to list
         }
@@ -230,6 +239,8 @@ int ProgramVisualizer::searchForFunctions(QString sourceFileText)
                     errorCode = newFunction->createFlowchart(); //create visualization for this function
                     if(errorCode == 3)
                         return 3; //error code for problem counting curly braces in an item
+                    else if(errorCode == 4)
+                        return 4; //error code for problem counting parentheses in an item
                     else
                     {
                         m_functionList.append(newFunction); //add to the funciton list
@@ -303,6 +314,7 @@ QString ProgramVisualizer::findFunctionDefinition( QString sourceFileText, Funct
 void ProgramVisualizer::setCurrentFlowchartItem()
 {
       int i; FlowchartItem *nextItem;
+      int k = 0; int length = 0;
 
       if(m_ui->treeWidget->selectedItems().isEmpty())
           return;
@@ -316,37 +328,52 @@ void ProgramVisualizer::setCurrentFlowchartItem()
         }
       }
 
-      if(m_currentFlowchartItem || m_updateDecision == 0)
+      if(m_currentFlowchartItem)
       {
           if(m_ui->updateSourceFile->isEnabled())  //item text has been changed
               setUpdateDecision();  //make sure the user doesn't want to lose changes to item text
           else
               m_updateDecision = 1;
 
-          if(m_updateDecision != 1) //we're staying with the same item, either a cancel or update was chosen
+          if(m_updateDecision == 2) //we're staying with the same item, a cancel was chosen
           {
               m_ui->treeWidget->clearSelection();
               m_currentFlowchartItem->browserItem()->setSelected(true);
-
-            //  if(m_updateDecision == 0)  //the user wanted to update the source file
-                //  updateSourceFile();
-
               return;
           }
       }
 
-      if(m_updateDecision == 1) //we're moving to a new item
+      if(m_updateDecision == 1)  //we're moving to a new item
       {
-          {
-              while(m_currentItemText->isModified())
-                  m_currentItemText->undo();
+          if(m_currentFlowchartItem)
+              disconnect(m_currentItemText, SIGNAL(contentsChange(int, int, int)), this, SLOT(setOffset(int, int, int)));
 
-              for(i = 0; i < m_flowchartList->length(); i++) //find currently selected item from the item list
+          disconnect(m_ui->textEdit, SIGNAL(cursorPositionChanged()), this, SLOT(checkCursorPosition()));
+
+          if(m_offsetList.length() >= 1)
+          {
+              while(k <= m_offsetList.length())
               {
-                  if(m_flowchartList->at(i)->browserItem()->isSelected())
-                      m_currentFlowchartItem = m_flowchartList->at(i);
+                  m_currentItemText->undo();
+                  if(m_currentFlowchartItem && m_currentFlowchartItem->numberOfChildren() != 0)
+                  {
+                      if(m_currentItemText->toPlainText().length() != length)
+                      {
+                          length = m_currentItemText->toPlainText().length();
+                          k++;
+                      }
+                  }
+                  else
+                      k++;
               }
-          }        
+          }
+          m_currentItemText->setModified(false);
+
+          for(i = 0; i < m_flowchartList->length(); i++) //find currently selected item from the item list
+          {
+              if(m_flowchartList->at(i)->browserItem()->isSelected())
+                  m_currentFlowchartItem = m_flowchartList->at(i);
+          }
 
           for(i = 0; i < m_flowchartList->length(); i++)
           {
@@ -391,13 +418,19 @@ void ProgramVisualizer::setCurrentFlowchartItem()
           m_currentItemText = m_currentFlowchartItem->itemTextDocument();
           m_currentItemText->setModified(false);
           m_ui->textEdit->setDocument(m_currentItemText);
-          /*Testing*/
+
           connect(m_currentItemText, SIGNAL(contentsChange(int, int, int)), this, SLOT(setOffset(int, int, int)));
+          connect(m_ui->textEdit, SIGNAL(cursorPositionChanged()), this, SLOT(checkCursorPosition()));
           m_offsetList.clear();
 
           /*Update font and size of the newly added document*/
           setItemTextFont(m_ui->fontComboBox->currentFont());
           setItemTextPointSize(m_ui->fontSize->value());
+      }
+      else if(m_updateDecision == 0)
+      {
+          /*Not working right now*/
+       //   updateSourceFile();
       }
 }
 
@@ -408,11 +441,12 @@ void ProgramVisualizer::setCurrentFunction(int index)
     if(m_currentFunction == m_functionList.at(index))
         return; //we don't need to set the current function - we already have the correct one
 
-
     if(m_currentFlowchartItem)
     {
         if(m_ui->updateSourceFile->isEnabled())  //item text has been changed
-            setUpdateDecision();  //make sure the user doesn't want to lose changes to item text
+            setUpdateDecision(); //make sure the user doesn't want to lose changes to item text
+        else
+            m_updateDecision = 1;
     }
     if(m_updateDecision == 2) //changing to a new function was canceled by the user
     {
@@ -422,11 +456,37 @@ void ProgramVisualizer::setCurrentFunction(int index)
                 m_ui->functionSelector->setCurrentIndex(i); //set the drop down menu back to the current function
         }
     }
+  //  else if(m_updateDecision == 0)
+ //        return;
 
     else
     {
-         while(m_currentItemText->isModified())
-            m_currentItemText->undo();
+        if(m_currentFlowchartItem)
+        {
+            disconnect(m_currentItemText, SIGNAL(contentsChange(int, int, int)), this, SLOT(setOffset(int, int, int)));
+            disconnect(m_ui->textEdit, SIGNAL(cursorPositionChanged()), this, SLOT(checkCursorPosition()));
+        }
+
+          int k = 0; int length = 0;
+          if(m_offsetList.length() >= 1)
+          {
+              while(k <= m_offsetList.length())
+              {
+                  m_currentItemText->undo();
+                  if(m_currentFlowchartItem && m_currentFlowchartItem->numberOfChildren() != 0)
+                  {
+                      if(m_currentItemText->toPlainText().length() != length)
+                      {
+                          length = m_currentItemText->toPlainText().length();
+                          k++;
+                      }
+                  }
+                  else
+                      k++;
+              }
+          }
+          m_currentItemText->setModified(false);
+          m_offsetList.clear();
 
         //clear text browser (current flowchart item is no longer selected anyway)
         m_ui->textEdit->clear();
@@ -436,8 +496,9 @@ void ProgramVisualizer::setCurrentFunction(int index)
 
         if(index != -1)  //valid new function has been selected
         {
-             disconnect(m_ui->treeWidget, SIGNAL(itemChanged(QTreeWidgetItem*, int)), this, SLOT(browserItemChanged(QTreeWidgetItem*, int)));
-            /*Set current function item and its list of flowchart items*/
+            disconnect(m_ui->treeWidget, SIGNAL(itemChanged(QTreeWidgetItem*, int)), this, SLOT(browserItemChanged(QTreeWidgetItem*, int)));
+
+             /*Set current function item and its list of flowchart items*/
             m_currentFunction = m_functionList.at(index);
             m_currentScene = m_currentFunction->graphicsScene();
             m_flowchartList = m_currentFunction->flowchartList();
@@ -459,19 +520,45 @@ void ProgramVisualizer::setCurrentFunction(int index)
 void ProgramVisualizer::changeFunction()
 {
     int i; int newIndex = -1;
+    int k = 0; int length = 0;
 
     if(m_currentFlowchartItem)
     {
         if(m_ui->updateSourceFile->isEnabled())  //item text has been changed
             setUpdateDecision();  //make sure the user doesn't want to lose changes to item text
+        else
+            m_updateDecision = 1;
     }
     if(m_updateDecision == 2)
         return;
 
     else
     {
-        while(m_currentItemText->isModified())
-            m_currentItemText->undo();
+        if(m_currentFlowchartItem)
+        {
+            disconnect(m_currentItemText, SIGNAL(contentsChange(int, int, int)), this, SLOT(setOffset(int, int, int)));
+            disconnect(m_ui->textEdit, SIGNAL(cursorPositionChanged()), this, SLOT(checkCursorPosition()));
+        }
+
+        if(m_offsetList.length() >= 1)
+        {
+            while(k <= m_offsetList.length())
+            {
+                m_currentItemText->undo();
+                if(m_currentFlowchartItem && m_currentFlowchartItem->numberOfChildren() != 0)
+                  {
+                      if(m_currentItemText->toPlainText().length() != length)
+                      {
+                          length = m_currentItemText->toPlainText().length();
+                          k++;
+                      }
+                  }
+                else
+                    k++;
+            }
+        }
+        m_currentItemText->setModified(false);
+        m_offsetList.clear();
 
         for(i = 0; i < m_functionList.length(); i++)
         {
@@ -515,16 +602,15 @@ void ProgramVisualizer::setUpdateDecision()
 
     switch(m_updateSourceWarning->returnResult())
     {
-        case 0:   //the user wants to update the source file
+   /*     case 0:   //the user wants to update the source file
             m_updateDecision = 0;
-            updateSourceFile();
-            break;
+            break; */
 
-        case 1:   //the user wants to move to a new item without saving the current item text's changes
+        case 0:   //the user wants to move to a new item without saving the current item text's changes
             m_updateDecision = 1;
             break;
 
-        case 2:   //the user wants to remain where he/she is
+        case 1:   //the user wants to remain where he/she is
             m_updateDecision = 2;
             break;
 
@@ -536,8 +622,8 @@ void ProgramVisualizer::setUpdateDecision()
 
 void ProgramVisualizer::enableUpdate()
 {
-    if(m_currentItemText->isModified()&& !m_currentFlowchartItem->isFunctionCall() && 
-    m_currentFlowchartItem->itemType() != "ternary conditional")
+    if(m_currentItemText->isModified()&& !m_currentFlowchartItem->isFunctionCall()
+                &&  m_currentFlowchartItem->itemType() != "break")
         m_ui->updateSourceFile->setEnabled(true);
     else
         m_ui->updateSourceFile->setEnabled(false);
@@ -598,28 +684,6 @@ void ProgramVisualizer::updateSourceFile()
     /*Reset the current function and flowchart item to what they were before refreshing*/
     setCurrentFunction(currentFunctionIndex);
     m_flowchartList->at(currentFlowchartIndex)->browserItem()->setSelected(true);
-
-}
-
-void ProgramVisualizer::setItemTextFont(QFont font)
-{
-    m_ui->textEdit->setFont(font);
-    setItemTextPointSize(m_ui->fontSize->value());
-
-    if(m_ui->applyFont->isChecked())
-        setBrowserFont();
-}
-
-void ProgramVisualizer::setItemTextPointSize(int size)
-{
-    QFont editedFont;
-    editedFont = m_ui->textEdit->font();
-    editedFont.setPointSize(size);
-    m_ui->textEdit->setFont(editedFont);
-
-    if(m_ui->applyFont->isChecked())
-        setBrowserFont();
-
 }
 
 void ProgramVisualizer::checkCursorPosition()
@@ -646,7 +710,7 @@ void ProgramVisualizer::checkCursorPosition()
         {
             while(i < m_flowchartList->length())
             {
-                if(m_flowchartList->at(i)->level() == currentLevel)
+                if(m_flowchartList->at(i)->level() == currentLevel) //we've left the item's children
                 {
                     endIndex = i;
                     break;
@@ -654,29 +718,35 @@ void ProgramVisualizer::checkCursorPosition()
                 i++;
             }
 
-            for(i = currentIndex; i <= endIndex; i++)
+            for(i = currentIndex; i <= endIndex; i++)  //add up the absolute position of items within the currently selected flowchart item
             {
                 if(i != currentIndex)
                     beginPos = basePos + m_flowchartList->at(i)->posInText();
 
-                endPos = basePos + m_flowchartList->at(i)->endItemTextPos() + 1;
+                if(m_flowchartList->at(i)->itemType() == "doWhile")
+                    endPos = basePos + m_flowchartList->at(i)->endDoWhilePos();
+                else
+                    endPos = basePos + m_flowchartList->at(i)->endItemTextPos();
+
+                if(m_currentFlowchartItem->itemText().mid(endPos, 1) == "}")
+                    endPos++;
 
                 /*Allow for changes in the text edit that haven't been updated in the source file*/
                 for(j = 0; j < m_offsetList.length(); j++)
                 {
-                    if(beginPos >= m_offsetList.at(j).x())  //the x value is the position where the change occurred
+                    if(beginPos > m_offsetList.at(j).x())  //the x value is the position where the change occurred
                          beginPos = beginPos + m_offsetList.at(j).y(); //the y value is the number of characters added at that position
-                    if(endPos >= m_offsetList.at(j).x())
+                    if(endPos > m_offsetList.at(j).x())
                          endPos = endPos + m_offsetList.at(j).y();
                 }
 
-                if(pos >= beginPos && pos <= endPos)
+                if(pos >= beginPos && pos <= endPos)  //we are inside this item's text
                 {
                     highlightIndex = i;
                     if(i != currentIndex)
                         basePos = basePos + m_flowchartList->at(i)->beginItemTextPos();
                 }
-                if(highlightIndex == i && m_flowchartList->at(i)->numberOfChildren() == 0)
+                if(highlightIndex == i && m_flowchartList->at(i)->numberOfChildren() == 0)  //we can't narrow it down any more
                     break;
             }
         }
@@ -737,6 +807,12 @@ void ProgramVisualizer::checkHighlighted()
         i = currentIndex + 1;
         currentLevel = m_currentFlowchartItem->level();
         numOfChildren = m_currentFlowchartItem->numberOfChildren();
+        
+        if(highlightIndex < currentIndex)
+            return;
+        
+        if(m_flowchartList->at(highlightIndex)->level() <= currentLevel)
+            return;
 
         if(numOfChildren != 0)
         {
@@ -748,16 +824,22 @@ void ProgramVisualizer::checkHighlighted()
                 basePos = basePos + nextItem->beginItemTextPos();
             }
             beginPos = basePos + m_flowchartList->at(highlightIndex)->posInText();
-            endPos = basePos + m_flowchartList->at(highlightIndex)->endItemTextPos()+1;
+
+            if(m_flowchartList->at(highlightIndex)->itemType() == "doWhile")
+                endPos = basePos + m_flowchartList->at(highlightIndex)->endDoWhilePos();
+            else
+                endPos = basePos + m_flowchartList->at(highlightIndex)->endItemTextPos();
+
+            if(m_currentFlowchartItem->itemText().mid(endPos, 1) == "}")
+                    endPos++;
 
             /*Allow for changes in the text edit that haven't been updated in the source file*/
             for(j = 0; j < m_offsetList.length(); j++)
             {
-                if(beginPos >= m_offsetList.at(j).x())  //the x value is the position where the change occurred
+                if(beginPos > m_offsetList.at(j).x())  //the x value is the position where the change occurred
                     beginPos = beginPos + m_offsetList.at(j).y();  //the y value is the number of characters added at that position
-                if(endPos >= m_offsetList.at(j).x())
+                if(endPos > m_offsetList.at(j).x())
                     endPos = endPos + m_offsetList.at(j).y();
-
             }
 
             QTextCursor *selection = new QTextCursor(m_currentItemText);
@@ -788,17 +870,6 @@ void ProgramVisualizer::checkHighlighted()
         m_currentItemText->setModified(false);
     }
 
-}
-
-void ProgramVisualizer::setBrowserFont()
-{
-    if(m_ui->applyFont->isChecked())
-    {
-        QFont currentFont; int i;
-        currentFont = m_ui->textEdit->font();
-        for(i = 0; i < m_flowchartList->length(); i++)
-            m_flowchartList->at(i)->browserItem()->setFont(0, currentFont);
-    }
 }
 
 void ProgramVisualizer::setHighlightedBrowserItem(QTreeWidgetItem *item, int column)
@@ -837,11 +908,50 @@ void ProgramVisualizer::setOffset(int pos, int removed, int added)
 {
     QPoint newOffset;
 
-    newOffset.setX(pos);
-    newOffset.setY(added-removed);
-    m_offsetList.append(newOffset);
+    if(added - removed != 0)
+    {   
+        newOffset.setX(pos);
+        newOffset.setY(added-removed);
+        m_offsetList.append(newOffset);
+
+        m_ui->updateSourceFile->setEnabled(true);
+        m_currentItemText->setModified(true);
+    }
 
 }
+
+void ProgramVisualizer::setItemTextFont(QFont font)
+{
+    m_ui->textEdit->setFont(font);
+    setItemTextPointSize(m_ui->fontSize->value());
+
+    if(m_ui->applyFont->isChecked())
+        setBrowserFont();
+}
+
+void ProgramVisualizer::setItemTextPointSize(int size)
+{
+    QFont editedFont;
+    editedFont = m_ui->textEdit->font();
+    editedFont.setPointSize(size);
+    m_ui->textEdit->setFont(editedFont);
+
+    if(m_ui->applyFont->isChecked())
+        setBrowserFont();
+
+}
+
+void ProgramVisualizer::setBrowserFont()
+{
+    if(m_ui->applyFont->isChecked())
+    {
+        QFont currentFont; int i;
+        currentFont = m_ui->textEdit->font();
+        for(i = 0; i < m_flowchartList->length(); i++)
+            m_flowchartList->at(i)->browserItem()->setFont(0, currentFont);
+    }
+}
+
 
 void ProgramVisualizer::closeEvent(QCloseEvent *event)
 {

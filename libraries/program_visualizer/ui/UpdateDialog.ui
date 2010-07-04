@@ -40,11 +40,6 @@
    </property>
    <item>
     <property name="text">
-     <string>Update source file now</string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
      <string>Leave item without updating source file</string>
     </property>
    </item>

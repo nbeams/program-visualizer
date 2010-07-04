@@ -63,6 +63,9 @@ int FunctionItem::createFlowchart()
     if(errorCode == 3)
         return 3;
 
+    else if(errorCode == 4)
+        return 4;
+
     float currentX = 0; float currentY = 0; int i;
 
     m_flowchartList->at(0)->setPreviousItem(0);
@@ -94,6 +97,7 @@ int FunctionItem::searchForKeywords(QString text, FlowchartItem *parentItem)
     FlowchartItem *newCase;
 
     int itemPos = 0; int matchedLength = 0; int posInText = 0; int beginItemTextPos = 0; int endItemTextPos = 0;
+    int endParenPos = 0; int endDoWhilePos = 0;
     int ifPos = 0; int elseIfPos = 0; int elsePos = 0; int ternCondPos = 0;
     int forPos = 0; int whilePos = 0; int doWhilePos = 0;
     int switchPos = 0; int breakPos = 0; int returnPos = 0;
@@ -322,6 +326,11 @@ int FunctionItem::searchForKeywords(QString text, FlowchartItem *parentItem)
                 {
                     itemPos = ifPos;
                     matchedLength = ifStatement.matchedLength();
+
+                    endParenPos = findEndParen(text, ifPos);
+                    if(endParenPos >= 0 && endParenPos - ifPos < matchedLength)
+                        matchedLength = endParenPos - ifPos;
+
                     currentType = "if";
                 }
 
@@ -329,6 +338,11 @@ int FunctionItem::searchForKeywords(QString text, FlowchartItem *parentItem)
                 {
                     itemPos = elseIfPos;
                     matchedLength = elseIfStatement.matchedLength();
+
+                    endParenPos = findEndParen(text, elseIfPos);
+                    if(endParenPos >= 0 && endParenPos - elseIfPos < matchedLength)
+                        matchedLength = endParenPos - elseIfPos;
+
                     currentType = "else if";
                 }
 
@@ -350,6 +364,11 @@ int FunctionItem::searchForKeywords(QString text, FlowchartItem *parentItem)
                 {
                     itemPos = whilePos;
                     matchedLength = whileLoop.matchedLength();
+
+                    endParenPos = findEndParen(text, whilePos);
+                    if(endParenPos >= 0 && endParenPos - whilePos < matchedLength)
+                        matchedLength = endParenPos - whilePos;
+
                     currentType = "while";
                 }
 
@@ -357,6 +376,11 @@ int FunctionItem::searchForKeywords(QString text, FlowchartItem *parentItem)
                 {
                     itemPos = forPos;
                     matchedLength = forLoop.matchedLength();
+
+                    endParenPos = findEndParen(text, forPos);
+                    if(endParenPos >= 0 && endParenPos - forPos < matchedLength)
+                        matchedLength = endParenPos - forPos;
+
                     currentType = "for";
                 }
 
@@ -371,6 +395,11 @@ int FunctionItem::searchForKeywords(QString text, FlowchartItem *parentItem)
                 {
                     itemPos = switchPos;
                     matchedLength = switchBlock.matchedLength();
+
+                    endParenPos = findEndParen(text, switchPos);
+                    if(endParenPos >= 0 && endParenPos - switchPos < matchedLength)
+                        matchedLength = endParenPos - switchPos;
+
                     currentType = "switch";
                 }
 
@@ -385,6 +414,14 @@ int FunctionItem::searchForKeywords(QString text, FlowchartItem *parentItem)
                 {
                     itemPos = returnPos;
                     matchedLength = returnStatement.matchedLength();
+
+                    if(text.mid(returnPos, matchedLength).contains("\\("))
+                    {
+                        endParenPos = findEndParen(text, returnPos);
+                        if(endParenPos >= 0 && endParenPos - returnPos < matchedLength)
+                            matchedLength = endParenPos - returnPos + 1;
+                    }
+
                     currentType = "return";
                 }
 
@@ -418,10 +455,6 @@ int FunctionItem::searchForKeywords(QString text, FlowchartItem *parentItem)
 
             if(currentType == "additional code")
             {
-             /*   if(parentItem && parentItem == m_flowchartList->last())
-                    posInText = parentItem->beginItemTextPos();
-                else
-                    posInText = m_flowchartList->last()->endItemTextPos() + 1; */
                 posInText = additionalCodeBeginPos;
 
                 currentItemText = text.mid(posInText, additionalCodeEndPos - posInText);
@@ -462,13 +495,17 @@ int FunctionItem::searchForKeywords(QString text, FlowchartItem *parentItem)
                 itemPos = itemPos + matchedLength;
 
                 /*Find the code associated with this item*/
+
                 if(currentType != "ternary conditional"&& currentType != "function call" && currentType != "break" && currentType != "return")
                     currentItemText = findItemText(text, &itemPos, &beginItemTextPos, &endItemTextPos);
                 else
                 {
+                    if(currentType == "ternary conditional" || currentType == "break" || currentType == "return")
+                        currentItemText = currentName;
+                    else
+                        currentItemText.clear();
                     beginItemTextPos = posInText;
                     endItemTextPos = beginItemTextPos + matchedLength;
-                    currentItemText.clear();
                 }
 
                 if(currentType == "doWhile")
@@ -478,6 +515,7 @@ int FunctionItem::searchForKeywords(QString text, FlowchartItem *parentItem)
                     matchedLength = doWhileName.matchedLength() + 1;
                     currentName.append(text.mid(itemPos, matchedLength-1));
                     itemPos = itemPos + matchedLength;
+                    endDoWhilePos = itemPos;
                 }
 
                 if(parentItem)
@@ -519,11 +557,18 @@ int FunctionItem::searchForKeywords(QString text, FlowchartItem *parentItem)
                     item->setPosInText(posInText);
                     item->setBeginItemTextPos(beginItemTextPos);
                     item->setEndItemTextPos(endItemTextPos);
+
+                    if(currentType == "doWhile")
+                        item->setEndDoWhilePos(endDoWhilePos);
                 }
             }
 
             if(item->itemText().toInt(&ok, 10) == 3)
                 return 3;
+
+            else if(endParenPos == -1)
+                return 4;
+
             else
             {
                 if(item->nameText().contains("\n"))
@@ -532,7 +577,8 @@ int FunctionItem::searchForKeywords(QString text, FlowchartItem *parentItem)
                 addFlowchartItem(item);
 
                 /*Check whether this item has any child items*/
-                if(item->itemType() != "additional code")
+                if(item->itemType() != "additional code" && item->itemType() != "ternary conditional"
+                   && item->itemType() != "return" && item->itemType() != "break")
                 {
                     additionalCodeBeginPos = itemPos;
                     searchForKeywords(item->itemText(), item);
@@ -541,6 +587,44 @@ int FunctionItem::searchForKeywords(QString text, FlowchartItem *parentItem)
         } 
     }
     return 0;
+}
+
+int FunctionItem::findEndParen(QString text, int beginPos)
+{
+    int openPos = 0; int closedPos = 0; int numOpenParen = 1;
+    bool openFound = false; bool closedFound = false;
+    QString newItemText; QString name;
+
+    QRegExp openParen("\\(");
+    QRegExp closedParen("\\)");
+
+    openPos = openParen.indexIn(text, beginPos);
+    openPos++;
+    closedPos = openPos;
+
+
+    /*Find the end of this particular item by counting open and closed parentheses*/
+    while(numOpenParen > 0 && closedPos > 0 && closedPos < text.length()-1)
+    {
+        openFound = findNext(text, openParen, &openPos);
+        closedFound = findNext(text, closedParen, &closedPos);
+
+        if(openFound && openPos < closedPos)
+        {
+            openPos++;
+            numOpenParen++;
+        }
+        else if(closedFound && (!openFound || (openFound && closedPos < openPos)))
+        {
+            closedPos++;
+            numOpenParen--;
+        }
+    }
+
+    if(!closedFound) //couldn't find closing parenthesis
+        closedPos = -1;
+
+    return closedPos;
 }
 
 QString FunctionItem::findItemText(QString text, int *itemPos, int *beginItemTextPos, int *endItemTextPos)

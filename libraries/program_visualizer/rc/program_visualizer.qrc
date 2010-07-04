@@ -2,4 +2,7 @@
     <qresource prefix="/" >
         <file>FlowchartItem.svg</file>
     </qresource>
+    <qresource prefix="/shortcuts/visualizer" >
+        <file>eye.png</file>
+    </qresource>
 </RCC>

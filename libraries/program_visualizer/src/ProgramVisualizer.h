@@ -2,6 +2,7 @@
 #define PROGRAMVISUALIZER_H
 
 #include <QtGui/QWidget>
+#include <QAction>
 #include <QTreeWidgetItem>
 #include <QGraphicsView>
 #include <QMessageBox>
@@ -31,7 +32,8 @@ public:
     ~ProgramVisualizer();
 
     void setCurrentFile(SourceFile *sourceFile);
-    void run();
+
+    QAction *visualizerAction() {return &m_action;}
 
 private:
 
@@ -46,6 +48,7 @@ private:
     QTextDocument *m_currentItemText;
     int m_updateDecision;
     QList<QPoint> m_offsetList;
+    QAction m_action;
 
     void reset();
     int searchForFunctions(QString sourceFileText);
@@ -53,24 +56,29 @@ private:
     void closeEvent (QCloseEvent *event);
 
  private slots:
+
+    void run();
     void refresh();
     void setCurrentFlowchartItem();
     void setCurrentFunction(int index);
     void changeFunction();
+
     void jumpToPosition();
+
     void setUpdateDecision();
     void enableUpdate();
     void updateSourceFile();
+
     void checkCursorPosition();
     void checkHighlighted();
+    void setHighlightedBrowserItem(QTreeWidgetItem *item, int column);
+    void browserItemChanged(QTreeWidgetItem *item, int column);
+    void setOffset(int pos, int removed, int added);
+
     void setItemTextFont(QFont font);
     void setItemTextPointSize(int size);
     void setBrowserFont();
 
-    /*Test*/
-    void setHighlightedBrowserItem(QTreeWidgetItem *item, int column);
-    void browserItemChanged(QTreeWidgetItem *item, int column);
-    void setOffset(int pos, int removed, int added);
 
 };
 

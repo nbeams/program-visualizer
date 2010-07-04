@@ -32,9 +32,10 @@ public:
 
     int createFlowchart();
     int searchForKeywords(QString text, FlowchartItem *parentItem);
+    int findEndParen(QString text, int beginPos);
     QString findItemText(QString text, int *itemPos, int *beginItemTextPos, int *endItemTextPos);
     FlowchartItem* findCase(QString text, FlowchartItem *parentItem, int *itemPos, bool *newItemFound);
-    void handleFunctionCall(QString nameext, FlowchartItem *item, int *endOfFunctionCall);
+    void handleFunctionCall(QString nameText, FlowchartItem *item, int *endOfFunctionCall);
     bool findNext(QString text, QRegExp regExp, int *searchPos);
     bool checkItem(QString text, int beginPos, int testPos, int *endPos);
 

@@ -4,13 +4,14 @@
 #include <Qsci/qsciscintilla.h>
 #include <Qsci/qsciscintillabase.h>
 
-ExtraGUIToolBar::ExtraGUIToolBar(QWidget *parent) : QWidget(parent), m_ui(new Ui::ExtraGUIToolBar), m_currentSourceFile(0), m_action("Extra GUI", this)
+ExtraGUIToolBar::ExtraGUIToolBar(QWidget *parent) : QWidget(parent), m_ui(new Ui::ExtraGUIToolBar), m_currentSourceFile(0), m_action(QIcon(":/shortcuts/extraGUI/cog_add.png"),"Extra GUI", this)
 {
     Q_INIT_RESOURCE(extra_gui);
     m_ui->setupUi(this);
 
     m_funcDialog = new FunctionDialog();
     m_help = new HelpWindow();
+
 
     /*Connections*/
     connect(m_ui->conditionalIf, SIGNAL(clicked()), this, SLOT(buttonClicked()));

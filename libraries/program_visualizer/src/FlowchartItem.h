@@ -31,6 +31,7 @@ public:
     int posInText();
     int beginItemTextPos();
     int endItemTextPos();
+    int endDoWhilePos();
     int level();
     QString nameText();
     QString itemText();
@@ -48,6 +49,7 @@ public:
     void setPosInText(int pos);
     void setBeginItemTextPos(int pos);
     void setEndItemTextPos(int pos);
+    void setEndDoWhilePos(int pos);
     void setLevel(int level);
     int numberOfChildren();
     void setNumberOfChildren(int number);
@@ -84,6 +86,7 @@ private:
     int m_posInText;
     int m_beginItemTextPos;
     int m_endItemTextPos;
+    int m_endDoWhilePos;
     int m_level;
     int m_numberOfChildren;
     bool m_hasParentItem;

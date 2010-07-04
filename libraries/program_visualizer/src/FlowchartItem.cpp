@@ -2,7 +2,8 @@
 
 
 FlowchartItem::FlowchartItem() : QGraphicsItem(0), m_parentItem(0), m_browserItem(),
-    m_treeWidget(0), m_posInText(0), m_beginItemTextPos(0), m_endItemTextPos(0), m_level(0), m_numberOfChildren(0)
+    m_treeWidget(0), m_posInText(0), m_beginItemTextPos(0), m_endItemTextPos(0), m_endDoWhilePos(0),
+    m_level(0), m_numberOfChildren(0)
 {
     m_itemTextDocument = new QTextDocument();
     m_isHighlighted = false;
@@ -13,7 +14,7 @@ FlowchartItem::FlowchartItem() : QGraphicsItem(0), m_parentItem(0), m_browserIte
 
 FlowchartItem::FlowchartItem(QTreeWidget *parentTreeWidget, int type, QString nameText):
     QGraphicsItem(0), m_parentItem(0), m_browserItem(0), m_treeWidget(0), m_posInText(0),
-    m_beginItemTextPos(0), m_endItemTextPos(0), m_level(0), m_numberOfChildren(0)
+    m_beginItemTextPos(0), m_endItemTextPos(0), m_endDoWhilePos(0), m_level(0), m_numberOfChildren(0)
 {
 
     m_treeWidget = parentTreeWidget;
@@ -68,7 +69,7 @@ FlowchartItem::FlowchartItem(QTreeWidget *parentTreeWidget, int type, QString na
 
 FlowchartItem::FlowchartItem(QTreeWidget *parentTreeWidget, FlowchartItem *parentItem, int type, QString nameText):
         QGraphicsItem(0), m_parentItem(0), m_browserItem(0), m_treeWidget(0), m_posInText(0),
-        m_beginItemTextPos(0), m_endItemTextPos(0), m_level(0), m_numberOfChildren(0)
+        m_beginItemTextPos(0), m_endItemTextPos(0), m_endDoWhilePos(0), m_level(0), m_numberOfChildren(0)
 {
     m_parentItem = parentItem;
     m_itemTextDocument = new QTextDocument();
@@ -165,6 +166,11 @@ int FlowchartItem::endItemTextPos()
     return m_endItemTextPos;
 }
 
+int FlowchartItem::endDoWhilePos()
+{
+    return m_endDoWhilePos;
+}
+
 int FlowchartItem::level()
 {
     return m_level;
@@ -238,6 +244,11 @@ void FlowchartItem::setBeginItemTextPos(int pos)
 void FlowchartItem::setEndItemTextPos(int pos)
 {
     m_endItemTextPos = pos;
+}
+
+void FlowchartItem::setEndDoWhilePos(int pos)
+{
+    m_endDoWhilePos = pos;
 }
 
 void FlowchartItem::setLevel(int level)
