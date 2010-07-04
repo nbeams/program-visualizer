@@ -1,5 +1,0 @@
-<RCC>
-    <qresource prefix="/rc" >
-        <file>rc/FlowchartItem.svg</file>
-    </qresource>
-</RCC>
