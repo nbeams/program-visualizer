@@ -44,8 +44,6 @@ public:
 	virtual void stop() = 0;
 	virtual bool download(QString filename) = 0;
 	virtual bool simulate(QString filename) = 0;
-        /*ADDED BY NB*/
-        virtual void visualizeProgram() = 0;
 
 	// These should inform the plugin loader of
 	// The features offered by this plugin
@@ -54,8 +52,6 @@ public:
 	virtual bool hasRun() = 0;
 	virtual bool hasStop() = 0;
 	virtual bool hasSimulate() = 0;
-        /*ADDED BY NB*/
-        virtual bool hasProgramVisualizer() = 0;
 	
 	/* Builtin Stuff */
 	QList<QAction*> getActionList() {return m_actionList;}

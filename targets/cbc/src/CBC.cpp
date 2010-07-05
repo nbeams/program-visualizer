@@ -49,6 +49,7 @@ CBC::CBC()
 
 	setLexerSpecs();
 	
+        m_actionList.push_back(m_visualizer.visualizerAction());
 	m_actionList.push_back(m_toolbar.toolbarAction());
 
 //FIXME This is ugly
@@ -215,12 +216,6 @@ bool CBC::simulate(QString filename)
 #endif
 
   return true;
-}
-
-/*ADDED BY NB*/
-void CBC::visualizeProgram()
-{
-    m_visualizer.run();
 }
 
 void CBC::processCompilerOutput()

@@ -166,9 +166,6 @@ public slots:
 	void sourceFileModified(bool m);
 	void errorViewShowVerbose();
 	void errorViewShowSimple();
-
-        /*ADDED BY NB*//*FIXME*/
-        void on_actionVisualize_Program_triggered(bool checked = false);
 	
 	void errorClicked(QListWidgetItem *errorItem);
 	

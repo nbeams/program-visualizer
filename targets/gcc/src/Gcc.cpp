@@ -54,7 +54,9 @@ Gcc::Gcc()
 	system(("ranlib " + QDir::currentPath() + "/targets/gcc/lib/*.a").toLocal8Bit());
 #endif
 
-	m_actionList.push_back(m_toolbar.toolbarAction());
+        m_actionList.push_back(m_visualizer.visualizerAction());
+        m_actionList.push_back(m_toolbar.toolbarAction());
+
 }
 
 Gcc::~Gcc()
@@ -160,12 +162,6 @@ bool Gcc::run(QString filename)
 
 	return true;
 
-}
-
-/*ADDED BY NB*/
-void Gcc::visualizeProgram()
-{
-    m_visualizer.run();
 }
 
 void Gcc::processCompilerOutput()

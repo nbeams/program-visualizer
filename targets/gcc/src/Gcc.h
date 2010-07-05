@@ -47,16 +47,12 @@ public:
 	void stop() {}
 	bool download(QString) {return false;}
 	bool simulate(QString) {return false;}
-        /*ADDED BY NB*/
-        void visualizeProgram();
 
 	bool hasCompile() { return true; }
 	bool hasRun() { return true; }
 	bool hasDownload() { return false; }
 	bool hasStop() { return false; }
 	bool hasSimulate() {return false; }
-        /*ADDED BY NB*/
-        bool hasProgramVisualizer() {return true; }
 	void setCurrentFile(SourceFile *sourceFile);
 
 private:

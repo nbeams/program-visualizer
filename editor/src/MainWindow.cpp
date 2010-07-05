@@ -617,12 +617,6 @@ void MainWindow::errorClicked(QListWidgetItem *errorItem)
 	
 }
 
-/*ADDED BY NB*//*FIXME*/
-void MainWindow::on_actionVisualize_Program_triggered(bool)
-{
-    m_target.visualizeProgram();
-}
-
 /************************
  *     Misc Methods     *
  ************************/

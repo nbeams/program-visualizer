@@ -128,7 +128,6 @@
    <addaction name="actionShortcutCut"/>
    <addaction name="actionShortcutCopy"/>
    <addaction name="actionShortcutPaste"/>
-   <addaction name="actionVisualize_Program"/>
   </widget>
   <widget class="QToolBar" name="ui_targetToolBar">
    <property name="enabled">
@@ -537,14 +536,6 @@
    </property>
    <property name="text">
     <string>Simulate</string>
-   </property>
-  </action>
-  <action name="actionVisualize_Program">
-   <property name="text">
-    <string>Visualize Program</string>
-   </property>
-   <property name="toolTip">
-    <string>Visualize Program</string>
    </property>
   </action>
  </widget>

@@ -65,8 +65,6 @@ public:
 	bool hasRun();
 	bool hasStop();
 	bool hasSimulate();
-        /*ADDED BY NB*/
-        bool hasProgramVisualizer();
 
 	// Again, these pass through to the TargetInterface if loaded
 	bool compile(QString filename);
@@ -74,8 +72,6 @@ public:
 	bool run(QString filename);
 	void stop();
 	bool simulate(QString filename);
-        /*ADDED BY NB*/
-        void visualizeProgram();
 
 	// Set/Get the current serial port
 	void setPort(QString port);

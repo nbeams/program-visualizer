@@ -46,18 +46,14 @@ public:
 	bool compile(QString filename);
 	bool run(QString) { return false; }
 	void stop() {}
-    bool download(QString filename);
+        bool download(QString filename);
 	bool simulate(QString filename);
-        /*ADDED BY NB*/
-        void visualizeProgram();
 
 	bool hasCompile() { return true; }
 	bool hasRun() { return false; }
 	bool hasDownload() { return true; }
 	bool hasStop() { return false; }
 	bool hasSimulate() { return true; }
-        /*ADDED BY NB*/
-        bool hasProgramVisualizer() {return true; }
 	void setCurrentFile(SourceFile *sourceFile);
 	
 signals:

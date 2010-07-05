@@ -204,14 +204,6 @@ bool Target::hasSimulate()
   return false;
 }
 
-/*ADDED BY NB*/
-bool Target::hasProgramVisualizer()
-{
-    if(m_targetInterface && m_targetInterface->hasProgramVisualizer())
-        return true;
-    return false;
-}
-
 /* End HAS Methods */
 
 /* Begin action Methods */
@@ -249,14 +241,6 @@ bool Target::simulate(QString filename)
   if(!hasSimulate())
     return false;
   return m_targetInterface->simulate(filename);
-}
-
-/*ADDED BY NB*/
-void Target::visualizeProgram()
-{
-    if(!hasProgramVisualizer())
-        return;
-    m_targetInterface->visualizeProgram();
 }
 
 /* End action Methods */
