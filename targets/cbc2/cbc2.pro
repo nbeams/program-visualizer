@@ -182,7 +182,7 @@ QMAKE_CLEAN += $${CBC2_SIM_LIB_DEST} $${CBC2_SIM_HEADER_DEST}
 #############################
 
 macx:{
-install_lib_names.extra = sh ../../scripts/osx_install_names.sh ../../$${INSTALL_BASE}/targets/cbc2/libcbc2_plugin.dylib QtCore.framework/Versions/4/QtCore QtGui.framework/Versions/4/QtGui
+install_lib_names.extra = sh ../../scripts/osx_install_names.sh ../../$${INSTALL_BASE}/targets/cbc2/libcbc2_plugin.dylib QtCore.framework/Versions/4/QtCore QtGui.framework/Versions/4/QtGui QtSvg.framework/Versions/4/QtSvg
 install_lib_names.path = ../../$${INSTALL_BASE}
 
 INSTALLS += install_lib_names
