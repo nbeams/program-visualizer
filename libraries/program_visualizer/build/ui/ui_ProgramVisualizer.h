@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading ui file 'ProgramVisualizer.ui'
 **
-** Created: Sat Jul 3 00:13:53 2010
+** Created: Tue Jul 6 08:28:16 2010
 **      by: Qt User Interface Compiler version 4.5.2
 **
 ** WARNING! All changes made in this file will be lost when recompiling ui file!
@@ -75,12 +75,13 @@ public:
         textEdit = new QTextEdit(ProgramVisualizer);
         textEdit->setObjectName(QString::fromUtf8("textEdit"));
         textEdit->setGeometry(QRect(10, 500, 1061, 151));
+        QFont font;
+        font.setPointSize(12);
+        textEdit->setFont(font);
         textEdit->setTabStopWidth(25);
         treeWidgetLabel = new QLabel(ProgramVisualizer);
         treeWidgetLabel->setObjectName(QString::fromUtf8("treeWidgetLabel"));
         treeWidgetLabel->setGeometry(QRect(10, 410, 121, 41));
-        QFont font;
-        font.setPointSize(12);
         treeWidgetLabel->setFont(font);
         textEditLabel = new QLabel(ProgramVisualizer);
         textEditLabel->setObjectName(QString::fromUtf8("textEditLabel"));

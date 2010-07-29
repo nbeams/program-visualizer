@@ -59,6 +59,7 @@ public:
     void setHighlighted(bool highlight);
     void setIsFunctionCall(bool isFunctionCall);
     void setItemText(QString text);
+    void resetItemTextDocument();
     void setFunctionName(QString functionName);
     void setLocation(float topLeftX, float topLeftY);
     void setPreviousItem(FlowchartItem*);

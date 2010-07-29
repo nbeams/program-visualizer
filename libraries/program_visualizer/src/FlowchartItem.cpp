@@ -305,6 +305,11 @@ void FlowchartItem::setItemText(QString text)
     m_itemTextDocument->setPlainText(m_itemText);
 }
 
+void FlowchartItem::resetItemTextDocument()
+{
+    m_itemTextDocument->setPlainText(m_itemText);
+}
+
 void FlowchartItem::setFunctionName(QString functionName)
 {
     m_functionName = functionName;

@@ -314,7 +314,6 @@ QString ProgramVisualizer::findFunctionDefinition( QString sourceFileText, Funct
 void ProgramVisualizer::setCurrentFlowchartItem()
 {
       int i; FlowchartItem *nextItem;
-      int k = 0; int length = 0;
 
       if(m_ui->treeWidget->selectedItems().isEmpty())
           return;
@@ -350,23 +349,9 @@ void ProgramVisualizer::setCurrentFlowchartItem()
 
           disconnect(m_ui->textEdit, SIGNAL(cursorPositionChanged()), this, SLOT(checkCursorPosition()));
 
-          if(m_offsetList.length() >= 1)
-          {
-              while(k <= m_offsetList.length())
-              {
-                  m_currentItemText->undo();
-                  if(m_currentFlowchartItem && m_currentFlowchartItem->numberOfChildren() != 0)
-                  {
-                      if(m_currentItemText->toPlainText().length() != length)
-                      {
-                          length = m_currentItemText->toPlainText().length();
-                          k++;
-                      }
-                  }
-                  else
-                      k++;
-              }
-          }
+          if(m_currentFlowchartItem && m_offsetList.length() >= 1)
+              m_currentFlowchartItem->resetItemTextDocument(); //undo changes
+
           m_currentItemText->setModified(false);
 
           for(i = 0; i < m_flowchartList->length(); i++) //find currently selected item from the item list
@@ -467,24 +452,9 @@ void ProgramVisualizer::setCurrentFunction(int index)
             disconnect(m_ui->textEdit, SIGNAL(cursorPositionChanged()), this, SLOT(checkCursorPosition()));
         }
 
-          int k = 0; int length = 0;
-          if(m_offsetList.length() >= 1)
-          {
-              while(k <= m_offsetList.length())
-              {
-                  m_currentItemText->undo();
-                  if(m_currentFlowchartItem && m_currentFlowchartItem->numberOfChildren() != 0)
-                  {
-                      if(m_currentItemText->toPlainText().length() != length)
-                      {
-                          length = m_currentItemText->toPlainText().length();
-                          k++;
-                      }
-                  }
-                  else
-                      k++;
-              }
-          }
+        if(m_currentFlowchartItem && m_offsetList.length() >= 1)
+            m_currentFlowchartItem->resetItemTextDocument(); //undo changes
+
           m_currentItemText->setModified(false);
           m_offsetList.clear();
 
@@ -520,7 +490,6 @@ void ProgramVisualizer::setCurrentFunction(int index)
 void ProgramVisualizer::changeFunction()
 {
     int i; int newIndex = -1;
-    int k = 0; int length = 0;
 
     if(m_currentFlowchartItem)
     {
@@ -540,23 +509,9 @@ void ProgramVisualizer::changeFunction()
             disconnect(m_ui->textEdit, SIGNAL(cursorPositionChanged()), this, SLOT(checkCursorPosition()));
         }
 
-        if(m_offsetList.length() >= 1)
-        {
-            while(k <= m_offsetList.length())
-            {
-                m_currentItemText->undo();
-                if(m_currentFlowchartItem && m_currentFlowchartItem->numberOfChildren() != 0)
-                  {
-                      if(m_currentItemText->toPlainText().length() != length)
-                      {
-                          length = m_currentItemText->toPlainText().length();
-                          k++;
-                      }
-                  }
-                else
-                    k++;
-            }
-        }
+       if(m_currentFlowchartItem && m_offsetList.length() >= 1)
+            m_currentFlowchartItem->resetItemTextDocument(); //undo changes
+
         m_currentItemText->setModified(false);
         m_offsetList.clear();
 
@@ -744,7 +699,10 @@ void ProgramVisualizer::checkCursorPosition()
                 {
                     highlightIndex = i;
                     if(i != currentIndex)
-                        basePos = basePos + m_flowchartList->at(i)->beginItemTextPos();
+                    {
+                        if(m_flowchartList->at(i)->level() == currentLevel + 1 || basePos != 0) //this means that it has a parent and the cursor's not located in it
+                            basePos = basePos + m_flowchartList->at(i)->beginItemTextPos();
+                    }
                 }
                 if(highlightIndex == i && m_flowchartList->at(i)->numberOfChildren() == 0)  //we can't narrow it down any more
                     break;
@@ -754,8 +712,10 @@ void ProgramVisualizer::checkCursorPosition()
             m_flowchartList->at(i)->setHighlighted(false); //clear old highlighting, if there is any
 
         /*Set new highlighted item*/
-        m_flowchartList->at(highlightIndex)->setHighlighted(true);
-        checkHighlighted();
+        if(!(m_flowchartList->at(highlightIndex)->level() > currentLevel + 1 && basePos == 0)) //again, it's kind of confusing, but check to make sure we didn't get a child without its parent
+            m_flowchartList->at(highlightIndex)->setHighlighted(true);
+
+        checkHighlighted(); //update browser, graphics, and text for new highlighted item
     }
 }
 
@@ -804,6 +764,21 @@ void ProgramVisualizer::checkHighlighted()
     /*Highlight item text if it is visible*/
     if(currentIndex >= 0 && highlightIndex >= 0 && highlightIndex != currentIndex)
     {
+
+        QTextCursor *selection = new QTextCursor(m_currentItemText);
+        QTextCharFormat *selectedTextForm = new QTextCharFormat();
+
+        /*Reset any old bolding from previous highlights*/
+        selection->select(QTextCursor::Document);
+        selectedTextForm->setFontWeight(50); //regular weight
+        selection->setCharFormat(*selectedTextForm);
+
+        if(!wasPreviouslyAlt)
+        {
+            m_ui->updateSourceFile->setEnabled(false);  //return to disabled state; all we did was bold some text
+            m_currentItemText->setModified(false);
+        }
+
         i = currentIndex + 1;
         currentLevel = m_currentFlowchartItem->level();
         numOfChildren = m_currentFlowchartItem->numberOfChildren();
@@ -841,14 +816,6 @@ void ProgramVisualizer::checkHighlighted()
                 if(endPos > m_offsetList.at(j).x())
                     endPos = endPos + m_offsetList.at(j).y();
             }
-
-            QTextCursor *selection = new QTextCursor(m_currentItemText);
-            QTextCharFormat *selectedTextForm = new QTextCharFormat();
-
-            /*Reset any old bolding from previous highlights*/
-            selection->select(QTextCursor::Document);
-            selectedTextForm->setFontWeight(50); //regular weight
-            selection->setCharFormat(*selectedTextForm);
 
             /*Bold text for new highlighted item*/
             if(beginPos <= m_currentItemText->toPlainText().length())
