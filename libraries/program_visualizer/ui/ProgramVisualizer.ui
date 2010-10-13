@@ -205,7 +205,7 @@ p, li { white-space: pre-wrap; }
     <string>Update the main source file to reflect changes made in the text editor</string>
    </property>
    <property name="text">
-    <string>Update Source File</string>
+    <string>Update In Editor</string>
    </property>
   </widget>
   <widget class="QPushButton" name="jumpTo">
